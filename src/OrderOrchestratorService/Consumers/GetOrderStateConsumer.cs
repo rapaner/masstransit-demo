@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using ApiService.Contracts.MonitoringApi;
+﻿using ApiService.Contracts.MonitoringApi;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderOrchestratorService.Database;
+using System.Threading.Tasks;
 
 namespace OrderOrchestratorService.Consumers
 {

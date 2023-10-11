@@ -1,5 +1,5 @@
-﻿using System;
-using OrderOrchestratorService.StateMachines.OrderStateMachine;
+﻿using OrderOrchestratorService.StateMachines.OrderStateMachine;
+using System;
 
 namespace OrderOrchestratorService.Database.Models
 {
@@ -14,13 +14,12 @@ namespace OrderOrchestratorService.Database.Models
 
         public CartPosition()
         {
-            
         }
 
-        public CartPosition(Guid id, 
-            Guid orderId, 
-            string name, 
-            int amount, 
+        public CartPosition(Guid id,
+            Guid orderId,
+            string name,
+            int amount,
             int price)
         {
             Id = id;

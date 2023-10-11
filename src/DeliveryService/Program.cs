@@ -1,16 +1,16 @@
-﻿using System;
-using System.Reflection;
-using DeliveryService.Configurations;
+﻿using DeliveryService.Configurations;
 using DeliveryService.Consumers;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Reflection;
 
 namespace DeliveryService
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Console.Title = Assembly.GetExecutingAssembly().GetName().Name!;
             CreateHostBuilder(args).Build().Run();
@@ -31,26 +31,23 @@ namespace DeliveryService
                         c.AddConsumer<DeliveryOrderConsumer>(typeof(DeliveryOrderConsumerDefinition))
                             .Endpoint(configurator =>
                             {
-                                configurator.Name = endpointsConfig.DeliveryServiceAddress;
+                                configurator.Name = endpointsConfig!.DeliveryServiceAddress!;
                             });
 
                         c.AddDelayedMessageScheduler();
                         c.UsingRabbitMq((context, configurator) =>
                         {
                             configurator.UseBsonSerializer();
-                            configurator.Host(rabbitMqConfig.Hostname, rabbitMqConfig.VirtualHost, h =>
+                            configurator.Host(rabbitMqConfig!.Hostname, rabbitMqConfig.VirtualHost, h =>
                             {
                                 h.Username(rabbitMqConfig.Username);
                                 h.Password(rabbitMqConfig.Password);
                             });
 
-
                             configurator.UseDelayedMessageScheduler();
                             configurator.ConfigureEndpoints(context);
                         });
                     });
-
-                    services.AddMassTransitHostedService(true);
                 });
     }
 }

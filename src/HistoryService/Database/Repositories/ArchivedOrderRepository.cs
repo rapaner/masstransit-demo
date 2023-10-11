@@ -8,7 +8,7 @@ namespace HistoryService.Database.Repositories
 {
     public class ArchivedOrderRepository : IArchivedOrderRepository
     {
-        private readonly NpgSqlContext _context; 
+        private readonly NpgSqlContext _context;
 
         public ArchivedOrderRepository(NpgSqlContext context)
         {
@@ -16,10 +16,10 @@ namespace HistoryService.Database.Repositories
         }
 
         public async Task AddOrderAsync(Guid id,
-            bool isConfirmed, 
-            DateTimeOffset submitDate, 
-            string manager, 
-            DateTimeOffset? confirmDate, 
+            bool isConfirmed,
+            DateTimeOffset submitDate,
+            string manager,
+            DateTimeOffset? confirmDate,
             DateTimeOffset? deliveredDate)
         {
             var archivedOrder = new ArchivedOrder(id, isConfirmed, submitDate, manager, confirmDate, deliveredDate);

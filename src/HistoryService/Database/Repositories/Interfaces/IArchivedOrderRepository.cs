@@ -14,6 +14,5 @@ namespace HistoryService.Database.Repositories.Interfaces
             DateTimeOffset? deliveredDate);
 
         public Task<ArchivedOrder> GetOrderAsync(Guid id);
-
     }
 }

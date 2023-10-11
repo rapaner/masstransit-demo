@@ -1,8 +1,8 @@
-﻿using MassTransit;
+﻿using HistoryService.Contracts;
+using HistoryService.Database.Repositories.Interfaces;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using HistoryService.Contracts;
-using HistoryService.Database.Repositories.Interfaces;
 
 namespace HistoryService.Consumers
 {
@@ -25,11 +25,11 @@ namespace HistoryService.Consumers
 
             var message = context.Message;
 
-            await _archivedOrderRepository.AddOrderAsync(message.OrderId, 
-                message.IsConfirmed, 
-                message.SubmitDate, 
-                message.Manager, 
-                message.ConfirmDate, 
+            await _archivedOrderRepository.AddOrderAsync(message.OrderId,
+                message.IsConfirmed,
+                message.SubmitDate,
+                message.Manager,
+                message.ConfirmDate,
                 message.DeliveredDate);
 
             if (context.RequestId != null)

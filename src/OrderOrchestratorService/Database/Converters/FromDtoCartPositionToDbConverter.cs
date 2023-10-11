@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DtoCartPosition = Contracts.Shared.CartPosition;
 using DbCartPosition = OrderOrchestratorService.Database.Models.CartPosition;
+using DtoCartPosition = Contracts.Shared.CartPosition;
 
 namespace OrderOrchestratorService.Database.Converters
 {

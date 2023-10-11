@@ -1,6 +1,4 @@
-﻿using GreenPipes;
-using MassTransit;
-using MassTransit.Definition;
+﻿using MassTransit;
 
 namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine;
 
@@ -8,12 +6,11 @@ public class ArchivedOrderStateMachineDefinition : SagaDefinition<ArchivedOrderS
 {
     public ArchivedOrderStateMachineDefinition()
     {
-        
     }
 
-    protected override void ConfigureSaga(IReceiveEndpointConfigurator endpointConfigurator, ISagaConfigurator<ArchivedOrderState> sagaConfigurator)
+    protected override void ConfigureSaga(IReceiveEndpointConfigurator endpointConfigurator, ISagaConfigurator<ArchivedOrderState> sagaConfigurator, IRegistrationContext context)
     {
         endpointConfigurator.UseMessageRetry(r => r.Intervals(50, 100, 500, 1000));
-        endpointConfigurator.UseInMemoryOutbox();
+        endpointConfigurator.UseInMemoryOutbox(context);
     }
 }

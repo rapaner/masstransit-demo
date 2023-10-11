@@ -1,7 +1,7 @@
-using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using PaymentService.Contracts;
+using System.Threading.Tasks;
 
 namespace PaymentService.Consumers
 {

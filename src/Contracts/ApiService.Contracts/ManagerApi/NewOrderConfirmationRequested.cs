@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Contracts.Shared;
+using System;
 using System.Collections.Generic;
-using Contracts.Shared;
 
 namespace ApiService.Contracts.ManagerApi
 {
@@ -11,6 +11,5 @@ namespace ApiService.Contracts.ManagerApi
         public List<CartPosition> Cart { get; set; }
 
         public int TotalPrice { get; set; }
-        
     }
 }

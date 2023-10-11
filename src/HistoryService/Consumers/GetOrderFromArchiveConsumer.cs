@@ -1,9 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using HistoryService.Contracts;
+﻿using HistoryService.Contracts;
 using HistoryService.Database.Repositories.Interfaces;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace HistoryService.Consumers
 {
@@ -12,7 +11,7 @@ namespace HistoryService.Consumers
         private readonly ILogger<GetOrderFromArchiveConsumer> _logger;
         private readonly IArchivedOrderRepository _archivedOrderRepository;
 
-        public GetOrderFromArchiveConsumer(ILogger<GetOrderFromArchiveConsumer> logger, 
+        public GetOrderFromArchiveConsumer(ILogger<GetOrderFromArchiveConsumer> logger,
             IArchivedOrderRepository archivedOrderRepository)
         {
             _logger = logger;
@@ -25,7 +24,6 @@ namespace HistoryService.Consumers
 
             await context.RespondAsync<GetOrderFromArchiveResponse>(new
             {
-
                 OrderId = archiveOrder.Id,
                 IsConfirmed = archiveOrder.IsConfirmed,
                 SubmitDate = archiveOrder.SubmitDate,

@@ -1,12 +1,10 @@
-﻿using CartService.Database.Models;
+﻿using CartService.Contracts;
 using CartService.Database.Repositories.Interfaces;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CartService.Contracts;
 using DbCartPosition = CartService.Database.Models.CartPosition;
 using DtoCartPosition = Contracts.Shared.CartPosition;
 
@@ -14,7 +12,6 @@ namespace CartService.Consumers
 {
     public class GetCartConsumer : IConsumer<GetCart>
     {
-
         private readonly ILogger<GetCartConsumer> _logger;
         private readonly ICartRepository _cartRepository;
 
@@ -38,7 +35,7 @@ namespace CartService.Consumers
                     OrderId = message.OrderId,
                     CartContent = cart.CartPositions!.Select(c => ConvertToContractCartPosition(c)).ToList(),
                     TotalPrice = CountPrice(cart.CartPositions!.ToList())
-                }) ;
+                });
             }
         }
 

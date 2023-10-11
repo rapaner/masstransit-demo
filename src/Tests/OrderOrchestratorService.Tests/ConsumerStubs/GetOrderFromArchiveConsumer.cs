@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using HistoryService.Contracts;
+﻿using HistoryService.Contracts;
 using MassTransit;
+using System;
+using System.Threading.Tasks;
 
 namespace OrderOrchestratorService.Tests.ConsumerStubs;
 
@@ -11,7 +11,6 @@ public class GetOrderFromArchiveConsumer : IConsumer<GetOrderFromArchive>
     {
         await context.RespondAsync<GetOrderFromArchiveResponse>(new
         {
-
             OrderId = context.Message.OrderId,
             IsConfirmed = default(bool),
             SubmitDate = default(DateTimeOffset),

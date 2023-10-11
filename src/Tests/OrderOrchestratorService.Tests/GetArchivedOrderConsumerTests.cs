@@ -1,15 +1,15 @@
-using System;
-using System.Threading.Tasks;
 using ApiService.Contracts.ManagerApi;
 using CartService.Contracts;
 using FeedbackService.Contracts;
 using HistoryService.Contracts;
 using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using MassTransit.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using OrderOrchestratorService.Consumers;
 using OrderOrchestratorService.Tests.ConsumerStubs;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace OrderOrchestratorService.Tests
 {
@@ -20,7 +20,7 @@ namespace OrderOrchestratorService.Tests
         {
             var serviceCollection = new ServiceCollection()
                 .AddLogging()
-                .AddMassTransitInMemoryTestHarness(cfg =>
+                .AddMassTransitTestHarness(cfg =>
                 {
                     cfg.AddRequestClient<GetCart>();
                     cfg.AddRequestClient<GetOrderFromArchive>();
@@ -31,12 +31,11 @@ namespace OrderOrchestratorService.Tests
                     cfg.AddConsumer<GetOrderFromArchiveConsumer>();
 
                     cfg.AddConsumer<GetArchivedOrderConsumer>();
-                    cfg.AddConsumerTestHarness<GetArchivedOrderConsumer>();
                 });
 
             var provider = serviceCollection.BuildServiceProvider(true);
 
-            var harness = provider.GetRequiredService<InMemoryTestHarness>();
+            var harness = provider.GetRequiredService<ITestHarness>();
 
             await harness.Start();
 
@@ -57,7 +56,7 @@ namespace OrderOrchestratorService.Tests
 
                 Assert.True(await harness.Consumed.Any<GetArchivedOrder>());
                 Assert.True(await consumerTestHarness.Consumed.Any<GetArchivedOrder>());
-                
+
                 Assert.True(await harness.Sent.Any<GetArchivedOrderResponse>());
 
                 Assert.NotNull(response);
@@ -66,7 +65,6 @@ namespace OrderOrchestratorService.Tests
             finally
             {
                 await provider.DisposeAsync();
-                await harness.Stop();
             }
         }
     }

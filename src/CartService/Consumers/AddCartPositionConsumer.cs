@@ -1,16 +1,15 @@
-﻿using CartService.Database.Repositories.Interfaces;
+﻿using CartService.Contracts;
+using CartService.Database.Repositories.Interfaces;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using CartService.Contracts;
 
 namespace CartService.Consumers
 {
     public class AddCartPositionConsumer : IConsumer<AddCartPosition>
     {
-
         private readonly ILogger<AddCartPositionConsumer> _logger;
         private readonly ICartRepository _cartRepository;
         private readonly IGoodRepository _goodRepository;
@@ -23,7 +22,7 @@ namespace CartService.Consumers
             ICartPositionRepository cartPositionRepository)
         {
             _random = new Random();
-            
+
             _logger = logger;
             _cartRepository = cartRepository;
             _goodRepository = goodRepository;
@@ -32,7 +31,6 @@ namespace CartService.Consumers
 
         public async Task Consume(ConsumeContext<AddCartPosition> context)
         {
-            
             var newCartPosition = context.Message;
 
             if (!await _cartRepository.CartExistsAsync(newCartPosition.OrderId))
@@ -60,9 +58,7 @@ namespace CartService.Consumers
                 await _cartPositionRepository.AddCartPositionAsync(Guid.NewGuid(), newCartPosition.OrderId, good.Id, newCartPosition.Amount);
             }
 
-            
-
-            //to-do: respond    
+            //to-do: respond
         }
     }
 }

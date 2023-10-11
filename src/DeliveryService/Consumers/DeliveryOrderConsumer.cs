@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using DeliveryService.Contracts;
+﻿using DeliveryService.Contracts;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace DeliveryService.Consumers
 {
@@ -19,7 +19,6 @@ namespace DeliveryService.Consumers
         {
             _logger.LogInformation("[{consumerName}] Received delivery request for order {orderId}.",
                 nameof(DeliveryOrderConsumer), context.Message.OrderId);
-
 
             await context.SchedulePublish<OrderDelivered>(DateTime.UtcNow + TimeSpan.FromSeconds(30),
                 new

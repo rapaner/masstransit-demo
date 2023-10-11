@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Contracts.Shared;
+using System;
 using System.Collections.Generic;
-using Contracts.Shared;
 
 namespace HistoryService.Contracts
 {

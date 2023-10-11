@@ -1,11 +1,6 @@
 ﻿using CartService.Database.Configurations;
 using CartService.Database.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CartService.Database
 {
@@ -17,12 +12,10 @@ namespace CartService.Database
 
         public NpgSqlContext()
         {
-
         }
 
         public NpgSqlContext(DbContextOptions options) : base(options)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

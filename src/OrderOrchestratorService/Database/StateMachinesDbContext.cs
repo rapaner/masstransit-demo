@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using MassTransit.EntityFrameworkCoreIntegration;
-using MassTransit.EntityFrameworkCoreIntegration.Mappings;
+﻿using MassTransit.EntityFrameworkCoreIntegration;
 using Microsoft.EntityFrameworkCore;
 using OrderOrchestratorService.Database.Configurations;
 using OrderOrchestratorService.Database.Models;
 using OrderOrchestratorService.StateMachines.OrderStateMachine;
+using System.Collections.Generic;
 
 namespace OrderOrchestratorService.Database
 {
@@ -15,7 +14,6 @@ namespace OrderOrchestratorService.Database
 
         public StateMachinesDbContext(DbContextOptions options) : base(options)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,7 +28,6 @@ namespace OrderOrchestratorService.Database
             {
                 yield return new OrderStateMap();
             }
-
         }
     }
 }

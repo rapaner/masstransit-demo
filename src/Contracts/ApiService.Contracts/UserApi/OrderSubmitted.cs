@@ -7,6 +7,5 @@ namespace ApiService.Contracts.UserApi
         public Guid OrderId { get; set; }
 
         public string UserName { get; set; }
-
     }
 }

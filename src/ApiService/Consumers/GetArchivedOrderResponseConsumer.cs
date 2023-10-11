@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using ApiService.Contracts.ManagerApi;
+﻿using ApiService.Contracts.ManagerApi;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace ApiService.Consumers
 {
@@ -18,7 +18,7 @@ namespace ApiService.Consumers
         {
             _logger.LogInformation($"[ArchivedOrder] {context.Message.OrderId} " +
                 $"{context.Message.FeedbackText} {context.Message.FeedbackStars}" +
-                $"{context.Message.ConfirmDate} { context.Message.Cart.Count}");
+                $"{context.Message.ConfirmDate} {context.Message.Cart.Count}");
             return Task.CompletedTask;
         }
     }

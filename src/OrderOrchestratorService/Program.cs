@@ -1,5 +1,3 @@
-using System;
-using System.Reflection;
 using CartService.Contracts;
 using FeedbackService.Contracts;
 using HistoryService.Contracts;
@@ -14,6 +12,8 @@ using OrderOrchestratorService.Consumers;
 using OrderOrchestratorService.Database;
 using OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine;
 using OrderOrchestratorService.StateMachines.OrderStateMachine;
+using System;
+using System.Reflection;
 
 namespace OrderOrchestratorService
 {
@@ -38,7 +38,7 @@ namespace OrderOrchestratorService
                     using (var context = new StateMachinesDbContext(contextOptions))
                     {
                         context.Database.Migrate();
-                    }   
+                    }
 
                     var endpointsSection = hostContext.Configuration.GetSection("EndpointsConfiguration");
                     var endpointsConfig = endpointsSection.Get<EndpointsConfiguration>();
@@ -65,14 +65,14 @@ namespace OrderOrchestratorService
                         x.AddSagaStateMachine<OrderStateMachine, OrderState>(typeof(OrderStateMachineDefinition))
                             .Endpoint(e =>
                             {
-                                e.Name = endpointsConfig.OrderStateMachineAddress;
+                                e.Name = endpointsConfig!.OrderStateMachineAddress!;
                             });
 
                         x.AddSagaStateMachine<ArchivedOrderStateMachine, ArchivedOrderState>(typeof(ArchivedOrderStateMachineDefinition))
                             .InMemoryRepository()
                             .Endpoint(e =>
                             {
-                                e.Name = endpointsConfig.ArchiveOrderStateMachineAddress;
+                                e.Name = endpointsConfig!.ArchiveOrderStateMachineAddress!;
                             });
 
                         x.AddDelayedMessageScheduler();
@@ -80,27 +80,25 @@ namespace OrderOrchestratorService
                         x.AddConsumer<GetOrderStateConsumer>(typeof(GetOrderStateConsumerDefinition));
                         //x.AddConsumer<GetArchivedOrderConsumer>(typeof(GetArchivedOrderConsumerDefinition));
 
-                        x.AddRequestClient<GetOrderFromArchive>(new Uri(endpointsConfig.HistoryServiceAddress!));
+                        x.AddRequestClient<GetOrderFromArchive>(new Uri(endpointsConfig!.HistoryServiceAddress!));
                         x.AddRequestClient<GetOrderFeedback>(new Uri(endpointsConfig.FeedbackServiceAddress!));
                         x.AddRequestClient<GetCart>(new Uri(endpointsConfig.CartServiceAddress!));
 
-
-                        x.UsingRabbitMq((context, cfg) => 
+                        x.UsingRabbitMq((context, cfg) =>
                         {
                             cfg.UseBsonSerializer();
 
                             cfg.UseDelayedMessageScheduler();
-                            
+
                             cfg.ConfigureEndpoints(context);
 
-                            cfg.Host(rabbitMqConfig.Hostname, rabbitMqConfig.VirtualHost, h =>
+                            cfg.Host(rabbitMqConfig!.Hostname, rabbitMqConfig.VirtualHost, h =>
                             {
                                 h.Username(rabbitMqConfig.Username);
                                 h.Password(rabbitMqConfig.Password);
                             });
                         });
-
-                    }).AddMassTransitHostedService(true);
+                    });
                 });
     }
 }

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Contracts.Shared;
+using MassTransit;
+using System;
 using System.Collections.Generic;
-using Automatonymous;
-using Contracts.Shared;
 
 namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
 {
 #nullable disable
+
     public class ArchivedOrderState : SagaStateMachineInstance
     {
         public Guid CorrelationId { get; set; }
@@ -31,5 +32,6 @@ namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
         public string FeedbackText { get; set; }
         public int FeedbackStars { get; set; }
     }
+
 #nullable restore
 }

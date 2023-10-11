@@ -1,12 +1,8 @@
-﻿using FeedbackService.Database.Repositories.Interfaces;
+﻿using FeedbackService.Contracts;
+using FeedbackService.Database.Repositories.Interfaces;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using FeedbackService.Contracts;
 
 namespace FeedbackService.Consumers
 {
@@ -14,7 +10,6 @@ namespace FeedbackService.Consumers
     {
         private readonly IFeedbackRepository _feedbackRepository;
         private readonly ILogger<AddFeedbackConsumer> _logger;
-
 
         public AddFeedbackConsumer(ILogger<AddFeedbackConsumer> logger,
             IFeedbackRepository feedbackRepository)
@@ -25,7 +20,6 @@ namespace FeedbackService.Consumers
 
         public async Task Consume(ConsumeContext<AddFeedback> context)
         {
-            
             _logger.LogInformation("[{consumerName}] Received feedback add request for order {orderId}.",
             nameof(AddFeedbackConsumer), context.Message.OrderId);
 

@@ -1,10 +1,10 @@
-﻿using System.Threading.Tasks;
-using ApiService.Contracts.ManagerApi;
+﻿using ApiService.Contracts.ManagerApi;
 using CartService.Contracts;
 using FeedbackService.Contracts;
 using HistoryService.Contracts;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace OrderOrchestratorService.Consumers
 {
@@ -15,9 +15,9 @@ namespace OrderOrchestratorService.Consumers
         private readonly IRequestClient<GetOrderFromArchive> _archiveRequestClient;
         private readonly IRequestClient<GetOrderFeedback> _feedbackRequestClient;
 
-        public GetArchivedOrderConsumer(ILogger<GetArchivedOrderConsumer> logger, 
-            IRequestClient<GetCart> cartRequestClient, 
-            IRequestClient<GetOrderFromArchive> archiveRequestClient, 
+        public GetArchivedOrderConsumer(ILogger<GetArchivedOrderConsumer> logger,
+            IRequestClient<GetCart> cartRequestClient,
+            IRequestClient<GetOrderFromArchive> archiveRequestClient,
             IRequestClient<GetOrderFeedback> feedbackRequestClient)
         {
             _logger = logger;
@@ -47,7 +47,6 @@ namespace OrderOrchestratorService.Consumers
 
             await context.RespondAsync<GetArchivedOrderResponse>(new
             {
-
                 OrderId = orderId,
                 Cart = cart.CartContent,
                 TotalPrice = cart.TotalPrice,

@@ -1,14 +1,14 @@
+using CartService.Configurations;
 using CartService.Consumers;
 using CartService.Database;
+using CartService.Database.Repositories;
+using CartService.Database.Repositories.Interfaces;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
 using System;
-using CartService.Configurations;
-using CartService.Database.Repositories.Interfaces;
-using CartService.Database.Repositories;
 using System.Reflection;
 
 namespace CartService
@@ -54,19 +54,19 @@ namespace CartService
                         x.AddConsumer<AddCartPositionConsumer>(typeof(AddCartPositionConsumerDefinition))
                             .Endpoint(cfg =>
                             {
-                                cfg.Name = endpointsConfig.CartServiceAddress;
+                                cfg.Name = endpointsConfig!.CartServiceAddress!;
                             });
 
                         x.AddConsumer<RemoveCartPositionConsumer>(typeof(RemoveCartPositionConsumerDefinition))
                             .Endpoint(cfg =>
                             {
-                                cfg.Name = endpointsConfig.CartServiceAddress;
+                                cfg.Name = endpointsConfig!.CartServiceAddress!;
                             });
 
                         x.AddConsumer<GetCartConsumer>(typeof(GetCartConsumerDefinition))
                             .Endpoint(cfg =>
                             {
-                                cfg.Name = endpointsConfig.CartServiceAddress;
+                                cfg.Name = endpointsConfig!.CartServiceAddress!;
                             });
 
                         x.UsingRabbitMq((context, cfg) =>
@@ -74,15 +74,13 @@ namespace CartService
                             cfg.UseBsonSerializer();
                             cfg.ConfigureEndpoints(context);
 
-                            cfg.Host(rabbitMqConfig.Hostname, rabbitMqConfig.VirtualHost, h =>
+                            cfg.Host(rabbitMqConfig!.Hostname, rabbitMqConfig.VirtualHost, h =>
                             {
                                 h.Username(rabbitMqConfig.Username);
                                 h.Password(rabbitMqConfig.Password);
                             });
                         });
-
-                    }).AddMassTransitHostedService(true);
+                    });
                 });
-
     }
 }

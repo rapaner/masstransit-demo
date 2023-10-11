@@ -9,13 +9,10 @@ namespace HistoryService.Database
 
         public NpgSqlContext()
         {
-
         }
 
         public NpgSqlContext(DbContextOptions options) : base(options)
         {
-
         }
-
     }
 }

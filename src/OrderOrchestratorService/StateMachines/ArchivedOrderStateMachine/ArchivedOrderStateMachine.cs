@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using ApiService.Contracts.ManagerApi;
-using Automatonymous;
-using Automatonymous.Binders;
+﻿using ApiService.Contracts.ManagerApi;
 using CartService.Contracts;
 using FeedbackService.Contracts;
 using HistoryService.Contracts;
@@ -10,6 +6,8 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrderOrchestratorService.Configurations;
+using System;
+using System.Threading.Tasks;
 
 namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
 {
@@ -52,10 +50,10 @@ namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
                 When(InformationCollected)
                     .IfElse(context => context.ShouldBeResponded(),
                         responded => responded
-                            .SendAsync(x => x.Instance.ResponseAddress, 
-                                    x => x.CreateArchivedOrderResponse(), 
-                                    (consumeContext, sendContext) => 
-                                        sendContext.RequestId = consumeContext.Instance.RequestId),
+                            .SendAsync(x => x.Saga.ResponseAddress,
+                                    x => x.CreateArchivedOrderResponse(),
+                                    (consumeContext, sendContext) =>
+                                        sendContext.RequestId = consumeContext.Saga.RequestId),
                         published => published
                             .PublishAsync(x => x.CreateArchivedOrderResponse()))
                     .Finalize());
@@ -94,8 +92,6 @@ namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
             {
                 r.ServiceAddress = new Uri(_endpointsConfiguration.CartServiceAddress!);
             });
-
-
         }
 
         private EventActivities<ArchivedOrderState> WhenArchivedOrderRequested()
@@ -106,21 +102,21 @@ namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
                 {
                     if (x.TryGetPayload(out SagaConsumeContext<ArchivedOrderState, GetArchivedOrder> payload))
                     {
-                        x.Instance.RequestId = payload.RequestId;
-                        x.Instance.ResponseAddress = payload.ResponseAddress;
+                        x.Saga.RequestId = payload.RequestId;
+                        x.Saga.ResponseAddress = payload.ResponseAddress;
                     }
                 })
                 .Request(CartRequest, x => x.Init<GetCart>(new
                 {
-                    OrderId = x.Instance.CorrelationId
+                    OrderId = x.Saga.CorrelationId
                 }))
                 .Request(ArchiveRequest, x => x.Init<GetOrderFromArchive>(new
                 {
-                    OrderId = x.Instance.CorrelationId
+                    OrderId = x.Saga.CorrelationId
                 }))
                 .Request(OrderFeedbackRequest, x => x.Init<GetOrderFeedback>(new
                 {
-                    OrderId = x.Instance.CorrelationId
+                    OrderId = x.Saga.CorrelationId
                 }));
         }
 
@@ -130,8 +126,8 @@ namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
                 .Then(x =>
                 {
                     _logger.LogInformation("WhenOrderCartRequestCompleted");
-                    x.Instance.Cart = x.Data.CartContent;
-                    x.Instance.TotalPrice = x.Data.TotalPrice;
+                    x.Saga.Cart = x.Message.CartContent;
+                    x.Saga.TotalPrice = x.Message.TotalPrice;
                 });
         }
 
@@ -141,11 +137,11 @@ namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
                 .Then(x =>
                 {
                     _logger.LogInformation("WhenArchiveRequestCompleted");
-                    x.Instance.ConfirmDate = x.Data.ConfirmDate;
-                    x.Instance.SubmitDate = x.Data.SubmitDate;
-                    x.Instance.IsConfirmed = x.Data.IsConfirmed;
-                    x.Instance.Manager = x.Data.Manager;
-                    x.Instance.DeliveredDate = x.Data.DeliveredDate;
+                    x.Saga.ConfirmDate = x.Message.ConfirmDate;
+                    x.Saga.SubmitDate = x.Message.SubmitDate;
+                    x.Saga.IsConfirmed = x.Message.IsConfirmed;
+                    x.Saga.Manager = x.Message.Manager;
+                    x.Saga.DeliveredDate = x.Message.DeliveredDate;
                 });
         }
 
@@ -155,35 +151,36 @@ namespace OrderOrchestratorService.StateMachines.ArchivedOrderStateMachine
                 .Then(x =>
                 {
                     _logger.LogInformation("WhenOrderFeedbackRequestCompleted");
-                    x.Instance.FeedbackText = x.Data.Text;
-                    x.Instance.FeedbackStars = x.Data.StarsAmount;
+                    x.Saga.FeedbackText = x.Message.Text;
+                    x.Saga.FeedbackStars = x.Message.StarsAmount;
                 });
         }
     }
 
     public static class ArchivedOrderStateMachineExtensions
     {
-        public static Task<GetArchivedOrderResponse> CreateArchivedOrderResponse(this ConsumeEventContext<ArchivedOrderState> context)
+        public static Task<SendTuple<GetArchivedOrderResponse>> CreateArchivedOrderResponse(this BehaviorContext<ArchivedOrderState> context)
         {
-            return context.Init<GetArchivedOrderResponse>((new
+            return context.Init<GetArchivedOrderResponse>(new
             {
-                OrderId = context.Instance.CorrelationId,
-                Cart = context.Instance.Cart,
-                TotalPrice = context.Instance.TotalPrice,
-                IsConfirmed = context.Instance.IsConfirmed,
-                SubmitDate = context.Instance.SubmitDate,
-                Manager = context.Instance.Manager,
-                ConfirmDate = context.Instance.ConfirmDate,
-                DeliveredDate = context.Instance.DeliveredDate,
-                FeedbackText = context.Instance.FeedbackText,
-                FeedbackStars = context.Instance.FeedbackStars,
-            }));
+                OrderId = context.Saga.CorrelationId,
+                Cart = context.Saga.Cart,
+                TotalPrice = context.Saga.TotalPrice,
+                IsConfirmed = context.Saga.IsConfirmed,
+                SubmitDate = context.Saga.SubmitDate,
+                Manager = context.Saga.Manager,
+                ConfirmDate = context.Saga.ConfirmDate,
+                DeliveredDate = context.Saga.DeliveredDate,
+                FeedbackText = context.Saga.FeedbackText,
+                FeedbackStars = context.Saga.FeedbackStars,
+            });
         }
 
         public static bool ShouldBeResponded(this BehaviorContext<ArchivedOrderState> context)
         {
-            return context.Instance.RequestId.HasValue && context.Instance.ResponseAddress != null;
+            return context.Saga.RequestId.HasValue && context.Saga.ResponseAddress != null;
         }
     }
+
 #nullable restore
 }

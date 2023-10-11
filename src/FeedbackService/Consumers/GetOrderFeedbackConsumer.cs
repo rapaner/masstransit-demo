@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using FeedbackService.Contracts;
+﻿using FeedbackService.Contracts;
 using FeedbackService.Database.Repositories.Interfaces;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace FeedbackService.Consumers
 {
@@ -11,7 +11,7 @@ namespace FeedbackService.Consumers
         private readonly ILogger<GetOrderFeedbackConsumer> _logger;
         private readonly IFeedbackRepository _feedbackRepository;
 
-        public GetOrderFeedbackConsumer(ILogger<GetOrderFeedbackConsumer> logger, 
+        public GetOrderFeedbackConsumer(ILogger<GetOrderFeedbackConsumer> logger,
             IFeedbackRepository feedbackRepository)
         {
             _logger = logger;

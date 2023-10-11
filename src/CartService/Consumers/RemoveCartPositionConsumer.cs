@@ -1,19 +1,15 @@
-﻿using CartService.Database.Repositories.Interfaces;
+﻿using CartService.Contracts;
+using CartService.Database.Repositories.Interfaces;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using CartService.Contracts;
 
 namespace CartService.Consumers
 {
     public class RemoveCartPositionConsumer : IConsumer<RemoveCartPosition>
     {
-
-        readonly ILogger<RemoveCartPositionConsumer> _logger;
+        private readonly ILogger<RemoveCartPositionConsumer> _logger;
         private readonly ICartRepository _cartRepository;
         private readonly ICartPositionRepository _cartPositionRepository;
 

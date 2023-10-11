@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using ApiService.Contracts.UserApi;
+﻿using ApiService.Contracts.UserApi;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace ApiService.Consumers
 {

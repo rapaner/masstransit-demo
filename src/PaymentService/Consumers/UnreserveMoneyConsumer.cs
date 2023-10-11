@@ -1,7 +1,7 @@
-using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using PaymentService.Contracts;
+using System.Threading.Tasks;
 
 namespace PaymentService.Consumers
 {
@@ -16,12 +16,12 @@ namespace PaymentService.Consumers
 
         public async Task Consume(ConsumeContext<UnreserveMoney> context)
         {
-            _logger.LogInformation("[{consumerName}] Received money unreservation request for order {orderId}.", 
+            _logger.LogInformation("[{consumerName}] Received money unreservation request for order {orderId}.",
                 nameof(UnreserveMoneyConsumer), context.Message.OrderId);
 
             await Task.Delay(1000);
-            
-            _logger.LogInformation("[{consumerName}] Unreserved {amount} money for order {orderId}.", 
+
+            _logger.LogInformation("[{consumerName}] Unreserved {amount} money for order {orderId}.",
                 nameof(UnreserveMoneyConsumer), context.Message.Amount, context.Message.OrderId);
 
             await context.RespondAsync<MoneyUnreserved>(new

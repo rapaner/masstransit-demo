@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using ApiService.Contracts.ManagerApi;
+﻿using ApiService.Contracts.ManagerApi;
 using ApiService.Contracts.MonitoringApi;
 using ApiService.Contracts.UserApi;
 using ApiService.Models.Interfaces;
@@ -10,6 +6,10 @@ using CartService.Contracts;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace ApiService.Controllers
 {
@@ -26,9 +26,9 @@ namespace ApiService.Controllers
         private readonly IRequestClient<AbortOrder> _abortOrderClient;
         private readonly ILogger<OrdersController> _logger;
 
-        public OrdersController(ISendEndpointProvider sendEndpointProvider, 
-            IRoutingConfiguration routingConfiguration, 
-            IPublishEndpoint publishEndpoint, 
+        public OrdersController(ISendEndpointProvider sendEndpointProvider,
+            IRoutingConfiguration routingConfiguration,
+            IPublishEndpoint publishEndpoint,
             IRequestClient<GetAllOrdersState> allOrderStatesClient,
             IRequestClient<GetOrderState> orderStateClient,
             IRequestClient<GetArchivedOrder> archiverOrderClient,
@@ -47,7 +47,7 @@ namespace ApiService.Controllers
 
         [HttpPost]
         [Route("{id}/cart-position/add")]
-        public async Task<IActionResult> PostCartPosition([FromRoute][Required] Guid id, 
+        public async Task<IActionResult> PostCartPosition([FromRoute][Required] Guid id,
             [FromQuery][Required] string name,
             [FromQuery][Required] int amount)
         {
@@ -188,7 +188,6 @@ namespace ApiService.Controllers
             {
                 await _publishEndpoint.Publish<FeedbackReceived>(new
                 {
-
                     OrderId = id,
                     Text = text,
                     StarsAmount = startAmount
@@ -224,7 +223,7 @@ namespace ApiService.Controllers
 
                 stopWatch.Stop();
 
-                return Ok(new { archivedOrder, stopWatch.ElapsedMilliseconds});
+                return Ok(new { archivedOrder, stopWatch.ElapsedMilliseconds });
             }
             catch (Exception e)
             {

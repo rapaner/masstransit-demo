@@ -1,13 +1,14 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using MassTransit;
-using Xunit;
 using MassTransit.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using PaymentService.Consumers;
 using PaymentService.Contracts;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace PaymentService.Tests
 {
@@ -16,15 +17,15 @@ namespace PaymentService.Tests
         [Fact]
         public async Task MoneyReservationTest()
         {
-            var harness = new InMemoryTestHarness()
-            {
-                TestTimeout = TimeSpan.FromSeconds(2)
-            };
+            await using var provider = new ServiceCollection()
+                .AddMassTransitTestHarness(x =>
+                {
+                    x.AddConsumer<ReserveMoneyConsumer>();
+                })
+                .BuildServiceProvider(true);
 
-            var consumerHarness = harness.Consumer(() =>
-            {
-                return new ReserveMoneyConsumer(new Mock<ILogger<ReserveMoneyConsumer>>().Object);
-            });
+            var harness = provider.GetRequiredService<ITestHarness>(); 
+            var consumerHarness = harness.GetConsumerHarness<ReserveMoneyConsumer>();
 
             await harness.Start();
 
@@ -33,11 +34,10 @@ namespace PaymentService.Tests
                 var orderId = Guid.NewGuid();
                 var amount = 100;
 
-                var client = await harness.ConnectRequestClient<ReserveMoney>();
+                var client = harness.GetRequestClient<ReserveMoney>();
 
                 var response = await client.GetResponse<MoneyReserved>(new
                 {
-
                     OrderId = orderId,
                     Amount = amount
                 });
@@ -46,7 +46,6 @@ namespace PaymentService.Tests
 
                 Assert.True(consumerHarness.Consumed.Select<ReserveMoney>().Any());
                 Assert.True(harness.Sent.Select<MoneyReserved>().Any());
-
             }
             finally
             {
@@ -54,22 +53,21 @@ namespace PaymentService.Tests
             }
         }
 
-
         [Theory]
         [InlineData(0)]
         [InlineData(-20)]
         [InlineData(-1000)]
         public async Task ShouldNotReserveMoneyWhenAmointIsLessThanZero(int amount)
         {
-            var harness = new InMemoryTestHarness()
-            {
-                TestTimeout = TimeSpan.FromSeconds(2)
-            };
+            await using var provider = new ServiceCollection()
+                .AddMassTransitTestHarness(x =>
+                {
+                    x.AddConsumer<ReserveMoneyConsumer>();
+                })
+                .BuildServiceProvider(true);
 
-            var consumerHarness = harness.Consumer(() =>
-            {
-                return new ReserveMoneyConsumer(new Mock<ILogger<ReserveMoneyConsumer>>().Object);
-            });
+            var harness = provider.GetRequiredService<ITestHarness>();
+            var consumerHarness = harness.GetConsumerHarness<ReserveMoneyConsumer>();
 
             await harness.Start();
 
@@ -77,11 +75,10 @@ namespace PaymentService.Tests
             {
                 var orderId = Guid.NewGuid();
 
-                var client = await harness.ConnectRequestClient<ReserveMoney>();
+                var client = harness.GetRequestClient<ReserveMoney>();
 
                 var response = await client.GetResponse<ErrorReservingMoney>(new
                 {
-
                     OrderId = orderId,
                     Amount = amount
                 });
@@ -89,10 +86,9 @@ namespace PaymentService.Tests
                 Assert.Equal(orderId, response.Message.OrderId);
 
                 Assert.True(consumerHarness.Consumed.Select<ReserveMoney>().Any());
-                
+
                 Assert.True(harness.Sent.Select<ErrorReservingMoney>().Any());
                 Assert.False(harness.Sent.Select<MoneyReserved>().Any());
-
             }
             finally
             {

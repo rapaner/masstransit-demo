@@ -1,7 +1,4 @@
-﻿using GreenPipes;
-using MassTransit;
-using MassTransit.ConsumeConfigurators;
-using MassTransit.Definition;
+﻿using MassTransit;
 
 namespace OrderOrchestratorService.Consumers
 {
@@ -9,14 +6,13 @@ namespace OrderOrchestratorService.Consumers
     {
         public GetOrderStateConsumerDefinition()
         {
-
         }
 
-        protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<GetOrderStateConsumer> consumerConfigurator)
+        protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<GetOrderStateConsumer> consumerConfigurator, IRegistrationContext context)
         {
             consumerConfigurator.UseDelayedRedelivery(r => r.Intervals(1000, 2000, 5000, 10000, 10000));
             consumerConfigurator.UseMessageRetry((r => r.Intervals(1000, 2000, 5000, 10000, 10000)));
-            consumerConfigurator.UseInMemoryOutbox();
+            consumerConfigurator.UseInMemoryOutbox(context);
         }
     }
 }

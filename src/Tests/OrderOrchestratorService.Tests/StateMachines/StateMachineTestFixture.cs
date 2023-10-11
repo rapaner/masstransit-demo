@@ -1,7 +1,5 @@
-﻿using Automatonymous;
-using MassTransit;
-using MassTransit.ExtensionsDependencyInjectionIntegration;
-using MassTransit.Saga.InMemoryRepository;
+﻿using MassTransit;
+using MassTransit.Saga;
 using MassTransit.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,26 +15,27 @@ using Xunit;
 namespace OrderOrchestratorService.Tests.StateMachines
 {
 #nullable disable
+
     public class StateMachineTestFixture<TStateMachine, TInstance> : IAsyncLifetime
         where TStateMachine : class, SagaStateMachine<TInstance>
         where TInstance : class, SagaStateMachineInstance
     {
         public TStateMachine Machine;
         public ServiceProvider ServiceProvider;
-        public IStateMachineSagaTestHarness<TInstance, TStateMachine> SagaHarness;
-        public InMemoryTestHarness TestHarness;
+        public ISagaStateMachineTestHarness<TStateMachine, TInstance> SagaHarness;
+        public ITestHarness TestHarness;
         public IndexedSagaDictionary<TInstance> Repository;
-        public Action<IServiceCollectionBusConfigurator> ConfigureMassTransit = null;
+
+        public Action<IBusRegistrationConfigurator> ConfigureMassTransit = null;
         public Action<IServiceCollection> ConfigureServices = null;
 
         private readonly TimeSpan _testTimeout = TimeSpan.FromSeconds(5);
-        
-        private  IServiceCollection _сollection;
+
+        private IServiceCollection _сollection;
         private Task<IScheduler> _scheduler;
 
         public StateMachineTestFixture()
         {
-
         }
 
         public async Task InitializeAsync()
@@ -44,18 +43,18 @@ namespace OrderOrchestratorService.Tests.StateMachines
             _сollection = new ServiceCollection()
                 .AddTransient(sp => GetMockedEndpoints())
                 .AddTransient(sp => GetMockedLogger())
-                .AddMassTransitInMemoryTestHarness(cfg =>
+                .AddMassTransitTestHarness(cfg =>
                 {
-
                     cfg.AddSagaStateMachine<TStateMachine, TInstance>()
-                    .InMemoryRepository();
-
-                    cfg.AddSagaStateMachineTestHarness<TStateMachine, TInstance>();
+                        .InMemoryRepository();
 
                     cfg.AddPublishMessageScheduler();
 
                     if (ConfigureMassTransit != null)
                         ConfigureMassTransit(cfg);
+
+                    cfg.AddQuartz();
+                    cfg.AddQuartzConsumers();
                 });
 
             if (ConfigureServices != null)
@@ -63,17 +62,15 @@ namespace OrderOrchestratorService.Tests.StateMachines
 
             ServiceProvider = _сollection.BuildServiceProvider(true);
 
-            TestHarness = ServiceProvider.GetRequiredService<InMemoryTestHarness>();
+            TestHarness = ServiceProvider.GetTestHarness();
             TestHarness.TestTimeout = _testTimeout;
 
-            TestHarness.OnConfigureInMemoryBus += (cfg) =>
-            {
-                cfg.UseInMemoryScheduler(out _scheduler);
-            };
+            var schedulerFactory = ServiceProvider.GetRequiredService<ISchedulerFactory>();
+            _scheduler = schedulerFactory.GetScheduler();
 
             await TestHarness.Start();
 
-            SagaHarness = ServiceProvider.GetRequiredService<IStateMachineSagaTestHarness<TInstance, TStateMachine>>();
+            SagaHarness = ServiceProvider.GetRequiredService<ISagaStateMachineTestHarness<TStateMachine, TInstance>>();
             Machine = ServiceProvider.GetRequiredService<TStateMachine>();
             Repository = ServiceProvider.GetRequiredService<IndexedSagaDictionary<TInstance>>();
         }
@@ -112,16 +109,15 @@ namespace OrderOrchestratorService.Tests.StateMachines
 
         private ILogger<TStateMachine> GetMockedLogger()
         {
-            
             return new Mock<ILogger<TStateMachine>>().Object;
         }
 
-        public int ConvertStateToInt(State state)
+        public int ConvertStateToInt(MassTransit.State state)
         {
             return Machine.States.ToList().IndexOf(Machine.GetState(state.Name)) + 1;
         }
 
-        public int ConvertStateToInt(Func<TStateMachine, State> stateSelector)
+        public int ConvertStateToInt(Func<TStateMachine, MassTransit.State> stateSelector)
         {
             var state = stateSelector(Machine);
             return Machine.States.ToList().IndexOf(Machine.GetState(state.Name)) + 1;
@@ -145,5 +141,6 @@ namespace OrderOrchestratorService.Tests.StateMachines
             SystemTime.Now = () => DateTimeOffset.Now;
         }
     }
+
 #nullable restore
 }

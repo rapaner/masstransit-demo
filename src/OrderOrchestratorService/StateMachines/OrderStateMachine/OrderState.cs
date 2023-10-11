@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using Automatonymous;
+﻿using MassTransit;
 using OrderOrchestratorService.Database.Models;
+using System;
+using System.Collections.Generic;
 
 namespace OrderOrchestratorService.StateMachines.OrderStateMachine
 {
 #nullable disable
+
     public class OrderState : SagaStateMachineInstance
     {
         public Guid CorrelationId { get; set; }
-        
+
         public int CurrentState { get; set; }
 
         public DateTimeOffset? SubmitDate { get; set; }
@@ -29,5 +30,6 @@ namespace OrderOrchestratorService.StateMachines.OrderStateMachine
         public byte[] RowVersion { get; set; }
         public Guid? FeedbackReceivingTimeoutToken { get; set; }
     }
+
 #nullable restore
 }

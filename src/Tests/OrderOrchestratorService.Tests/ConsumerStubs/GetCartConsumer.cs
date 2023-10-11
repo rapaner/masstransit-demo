@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using CartService.Contracts;
+﻿using CartService.Contracts;
 using Contracts.Shared;
 using MassTransit;
+using System.Threading.Tasks;
 
 namespace OrderOrchestratorService.Tests.ConsumerStubs;
 
@@ -11,15 +11,14 @@ public class GetCartConsumer : IConsumer<GetCart>
     {
         await context.RespondAsync<GetCartResponse>(new
         {
-
             OrderId = context.Message.OrderId,
-            CartContent = new[] { 
+            CartContent = new[] {
                 new CartPosition ()
                 {
                     Amount = 5,
                     Name = "Food",
                     Price = 20
-                } 
+                }
             },
             TotalPrice = 100
         });

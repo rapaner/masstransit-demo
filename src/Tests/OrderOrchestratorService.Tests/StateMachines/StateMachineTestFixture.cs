@@ -32,7 +32,7 @@ namespace OrderOrchestratorService.Tests.StateMachines
         private readonly TimeSpan _testTimeout = TimeSpan.FromSeconds(5);
 
         private IServiceCollection _сollection;
-        private Task<IScheduler> _scheduler;
+        private Task<IScheduler> _scheduler = null;
 
         public StateMachineTestFixture()
         {
@@ -48,13 +48,17 @@ namespace OrderOrchestratorService.Tests.StateMachines
                     cfg.AddSagaStateMachine<TStateMachine, TInstance>()
                         .InMemoryRepository();
 
-                    cfg.AddPublishMessageScheduler();
+                    cfg.AddDelayedMessageScheduler();
 
                     if (ConfigureMassTransit != null)
                         ConfigureMassTransit(cfg);
 
-                    cfg.AddQuartz();
-                    cfg.AddQuartzConsumers();
+                    cfg.UsingInMemory((context, x) =>
+                    {
+                        x.UseDelayedMessageScheduler();
+
+                        x.ConfigureEndpoints(context);
+                    });
                 });
 
             if (ConfigureServices != null)
@@ -65,8 +69,9 @@ namespace OrderOrchestratorService.Tests.StateMachines
             TestHarness = ServiceProvider.GetTestHarness();
             TestHarness.TestTimeout = _testTimeout;
 
-            var schedulerFactory = ServiceProvider.GetRequiredService<ISchedulerFactory>();
-            _scheduler = schedulerFactory.GetScheduler();
+            //TODO разобраться, как доставать scheduler
+            //var schedulerFactory = ServiceProvider.GetRequiredService<ISchedulerFactory>();
+            //_scheduler = schedulerFactory.GetScheduler();
 
             await TestHarness.Start();
 

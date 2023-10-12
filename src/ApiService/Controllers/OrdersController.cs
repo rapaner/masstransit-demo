@@ -73,7 +73,7 @@ namespace ApiService.Controllers
 
         [HttpPost]
         [Route("{id}/submit")]
-        public async Task<IActionResult> PostCartPosition([FromRoute][Required] Guid id)
+        public async Task<IActionResult> SubmitOrder([FromRoute][Required] Guid id)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace ApiService.Controllers
 
         [HttpPost]
         [Route("{id}/confirm")]
-        public async Task<IActionResult> SubmitOrder([FromRoute][Required] Guid id,
+        public async Task<IActionResult> ConfirmOrder([FromRoute][Required] Guid id,
             [FromQuery][Required] string name)
         {
             try
@@ -180,7 +180,7 @@ namespace ApiService.Controllers
 
         [HttpPost]
         [Route("{id}/send-feedback")]
-        public async Task<IActionResult> GetOrderState([FromRoute][Required] Guid id,
+        public async Task<IActionResult> SendFeedback([FromRoute][Required] Guid id,
             [FromQuery][Required] string text,
             [FromQuery][Required] int startAmount)
         {
